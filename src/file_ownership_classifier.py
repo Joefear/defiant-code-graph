@@ -20,6 +20,18 @@ OWNERSHIP_MARKERS = (
     ),
 )
 
+CREDENTIAL_FILE_SUFFIXES = frozenset({
+    ".pem", ".key", ".p12", ".pfx", ".crt", ".cer", ".der", ".csr",
+})
+
+
+def _is_credential_adjacent_filename(file_path: Path) -> bool:
+    name = file_path.name.lower()
+    if name == ".env" or name.startswith(".env."):
+        return True
+    return file_path.suffix.lower() in CREDENTIAL_FILE_SUFFIXES
+
+
 GENERATED_FILE_MARKERS = (
     "@generated",
     "auto-generated",
@@ -38,11 +50,16 @@ def _classify_file_ownership(file_path: Path, root: Path) -> str:
     try:
         content = file_path.read_text(encoding="utf-8").lower()
     except UnicodeDecodeError:
+        if _is_credential_adjacent_filename(file_path):
+            return "policy_sensitive"
         return "unknown"
 
     for ownership, markers in OWNERSHIP_MARKERS:
         if any(marker in content for marker in markers):
             return ownership
+
+    if _is_credential_adjacent_filename(file_path):
+        return "policy_sensitive"
 
     if any(marker in content for marker in GENERATED_FILE_MARKERS):
         return "generated"

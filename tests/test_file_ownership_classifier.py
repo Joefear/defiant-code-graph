@@ -79,6 +79,41 @@ def test_ownership_markers_take_priority_over_generated_content(tmp_path: Path) 
     assert facts["a.py"] == "locked"
 
 
+def test_credential_adjacent_env_files(tmp_path: Path) -> None:
+    (tmp_path / ".env").write_text("DATABASE_URL=postgres://localhost/db\n", encoding="utf-8")
+    (tmp_path / ".env.local").write_text("SECRET_KEY=dev\n", encoding="utf-8")
+    (tmp_path / ".env.production").write_text("SECRET_KEY=prod\n", encoding="utf-8")
+
+    facts = {f["file_path"]: f["ownership"] for f in build_file_ownership_facts(tmp_path)}
+    assert facts[".env"] == "policy_sensitive"
+    assert facts[".env.local"] == "policy_sensitive"
+    assert facts[".env.production"] == "policy_sensitive"
+
+
+def test_credential_adjacent_key_and_cert_files(tmp_path: Path) -> None:
+    for name in ("server.pem", "server.key", "server.crt", "server.cer", "server.der", "server.csr"):
+        (tmp_path / name).write_text("-----BEGIN CERTIFICATE-----\n", encoding="utf-8")
+    # Use bytes that are invalid UTF-8 to exercise the UnicodeDecodeError path.
+    (tmp_path / "keystore.p12").write_bytes(b"\xff\xfe\x00\x01")
+    (tmp_path / "keystore.pfx").write_bytes(b"\xff\xfe\x00\x01")
+
+    facts = {f["file_path"]: f["ownership"] for f in build_file_ownership_facts(tmp_path)}
+    for name in ("server.pem", "server.key", "server.crt", "server.cer", "server.der", "server.csr"):
+        assert facts[name] == "policy_sensitive", f"{name} should be policy_sensitive"
+    # Binary credential files that cannot be decoded are still policy_sensitive — the
+    # filename is sufficient structural evidence.
+    assert facts["keystore.p12"] == "policy_sensitive"
+    assert facts["keystore.pfx"] == "policy_sensitive"
+
+
+def test_ownership_markers_take_priority_over_credential_filename(tmp_path: Path) -> None:
+    # An explicit ownership annotation overrides the credential filename heuristic.
+    (tmp_path / ".env").write_text("# @locked\nSECRET_KEY=x\n", encoding="utf-8")
+
+    facts = {f["file_path"]: f["ownership"] for f in build_file_ownership_facts(tmp_path)}
+    assert facts[".env"] == "locked"
+
+
 def test_filename_generated_takes_priority_over_content_markers(tmp_path: Path) -> None:
     # A .generated. filename is classified without reading content.
     (tmp_path / "a.generated.py").write_text("# @locked\n", encoding="utf-8")
