@@ -5,6 +5,7 @@ from pathlib import Path
 from src.file_ownership_classifier import build_file_ownership_facts
 from src.python_dependency_graph import build_python_dependency_graph
 from src.python_file_facts import build_python_file_facts
+from src.python_symbol_relationships import build_python_symbol_relationships
 from src.repo_scanner import scan_repository
 
 
@@ -28,4 +29,5 @@ def build_python_repo_facts(root: Path) -> dict[str, object]:
         "files": files,
         "dependencies": build_python_dependency_graph(root),
         "ownership": build_file_ownership_facts(root),
+        "symbol_relationships": build_python_symbol_relationships(root),
     }
