@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from src.query_detect_protected_overlap import query_detect_protected_overlap
 from src.query_file_dependencies import query_file_dependencies
 from src.query_find_boundary_crossings import query_find_boundary_crossings
 from src.query_file_outline import query_file_outline
@@ -29,6 +30,9 @@ def test_query_interface(tmp_path: Path) -> None:
     assert run_query(
         tmp_path, "file_dependencies", file_path=Path("sample.py")
     ) == query_file_dependencies(tmp_path, Path("sample.py"))
+    assert run_query(
+        tmp_path, "detect_protected_overlap", symbol_id="sample.py:foo:3"
+    ) == query_detect_protected_overlap(tmp_path, "sample.py:foo:3")
     assert run_query(
         tmp_path, "symbol_metadata", symbol_id="sample.py:foo:3"
     ) == query_symbol_metadata(tmp_path, "sample.py:foo:3")
