@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from src.query_file_dependencies import query_file_dependencies
+from src.query_find_boundary_crossings import query_find_boundary_crossings
 from src.query_file_outline import query_file_outline
 from src.query_interface import run_query
 from src.query_related_symbols import query_related_symbols
@@ -40,6 +41,9 @@ def test_query_interface(tmp_path: Path) -> None:
     assert run_query(
         tmp_path, "related_symbols", symbol_id="sample.py:foo:3"
     ) == query_related_symbols(tmp_path, "sample.py:foo:3")
+    assert run_query(
+        tmp_path, "find_boundary_crossings", symbol_id="sample.py:foo:3"
+    ) == query_find_boundary_crossings(tmp_path, "sample.py:foo:3")
 
     with pytest.raises(ValueError, match="Unknown query type: unknown"):
         run_query(tmp_path, "unknown")

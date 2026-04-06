@@ -3,6 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.query_file_dependencies import query_file_dependencies
+from src.query_find_boundary_crossings import (
+    query_find_boundary_crossings,
+    query_find_boundary_crossings_for_file,
+)
 from src.query_file_outline import query_file_outline
 from src.query_related_symbols import query_related_symbols
 from src.query_resolve_symbol import query_resolve_symbol
@@ -15,6 +19,10 @@ def run_query(root: Path, query_type: str, **kwargs: object) -> dict[str, object
         return query_file_outline(root, kwargs["file_path"])
     if query_type == "file_dependencies":
         return query_file_dependencies(root, kwargs["file_path"])
+    if query_type == "find_boundary_crossings":
+        if "symbol_id" in kwargs:
+            return query_find_boundary_crossings(root, kwargs["symbol_id"])
+        return query_find_boundary_crossings_for_file(root, kwargs["file_path"])
     if query_type == "symbol_metadata":
         return query_symbol_metadata(root, kwargs["symbol_id"])
     if query_type == "resolve_symbol":
@@ -33,6 +41,17 @@ def run_file_outline_query(root: Path, file_path: Path) -> dict[str, object]:
 
 def run_file_dependencies_query(root: Path, file_path: Path) -> dict[str, object]:
     return query_file_dependencies(root, file_path)
+
+
+def run_find_boundary_crossings_query(
+    root: Path, *, symbol_id: str | None = None, file_path: Path | None = None
+) -> dict[str, object]:
+    if symbol_id is not None:
+        return query_find_boundary_crossings(root, symbol_id)
+    if file_path is not None:
+        return query_find_boundary_crossings_for_file(root, file_path)
+
+    raise ValueError("Either symbol_id or file_path is required")
 
 
 def run_symbol_metadata_query(root: Path, symbol_id: str) -> dict[str, object]:
