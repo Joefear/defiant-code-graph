@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from src.query_analyze_patch_impact import query_analyze_patch_impact
 from src.query_analyze_patch_targets import query_analyze_patch_targets
 from src.query_detect_protected_overlap import query_detect_protected_overlap
 from src.query_file_dependencies import query_file_dependencies
@@ -31,6 +32,28 @@ def test_query_interface(tmp_path: Path) -> None:
     assert run_query(
         tmp_path, "file_dependencies", file_path=Path("sample.py")
     ) == query_file_dependencies(tmp_path, Path("sample.py"))
+    assert run_query(
+        tmp_path,
+        "analyze_patch_impact",
+        patch_text=(
+            "diff --git a/sample.py b/sample.py\n"
+            "--- a/sample.py\n"
+            "+++ b/sample.py\n"
+            "@@ -3,1 +3,1 @@\n"
+            "-def foo():\n"
+            "+def foo():\n"
+        ),
+    ) == query_analyze_patch_impact(
+        tmp_path,
+        (
+            "diff --git a/sample.py b/sample.py\n"
+            "--- a/sample.py\n"
+            "+++ b/sample.py\n"
+            "@@ -3,1 +3,1 @@\n"
+            "-def foo():\n"
+            "+def foo():\n"
+        ),
+    )
     assert run_query(
         tmp_path,
         "analyze_patch_targets",
