@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from src.query_classify_change_type import query_classify_change_type
 from src.query_compare_intent_to_patch import query_compare_intent_to_patch
 from src.query_analyze_patch_impact import query_analyze_patch_impact
 from src.query_detect_protected_overlap import (
@@ -26,6 +27,8 @@ def run_query(root: Path, query_type: str, **kwargs: object) -> dict[str, object
         return query_file_outline(root, kwargs["file_path"])
     if query_type == "file_dependencies":
         return query_file_dependencies(root, kwargs["file_path"])
+    if query_type == "classify_change_type":
+        return query_classify_change_type(root, kwargs["patch_text"])
     if query_type == "compare_intent_to_patch":
         return query_compare_intent_to_patch(root, kwargs["intent"], kwargs["patch_text"])
     if query_type == "analyze_patch_impact":
@@ -66,6 +69,10 @@ def run_file_outline_query(root: Path, file_path: Path) -> dict[str, object]:
 
 def run_file_dependencies_query(root: Path, file_path: Path) -> dict[str, object]:
     return query_file_dependencies(root, file_path)
+
+
+def run_classify_change_type_query(root: Path, patch_text: str) -> dict[str, object]:
+    return query_classify_change_type(root, patch_text)
 
 
 def run_compare_intent_to_patch_query(
