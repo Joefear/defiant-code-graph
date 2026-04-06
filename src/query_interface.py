@@ -6,6 +6,7 @@ from src.query_detect_protected_overlap import (
     query_detect_protected_overlap,
     query_detect_protected_overlap_for_file,
 )
+from src.query_analyze_patch_targets import query_analyze_patch_targets
 from src.query_file_dependencies import query_file_dependencies
 from src.query_find_boundary_crossings import (
     query_find_boundary_crossings,
@@ -23,6 +24,8 @@ def run_query(root: Path, query_type: str, **kwargs: object) -> dict[str, object
         return query_file_outline(root, kwargs["file_path"])
     if query_type == "file_dependencies":
         return query_file_dependencies(root, kwargs["file_path"])
+    if query_type == "analyze_patch_targets":
+        return query_analyze_patch_targets(root, kwargs["patch_text"])
     if query_type == "detect_protected_overlap":
         if "symbol_id" in kwargs:
             return query_detect_protected_overlap(
@@ -57,6 +60,10 @@ def run_file_outline_query(root: Path, file_path: Path) -> dict[str, object]:
 
 def run_file_dependencies_query(root: Path, file_path: Path) -> dict[str, object]:
     return query_file_dependencies(root, file_path)
+
+
+def run_analyze_patch_targets_query(root: Path, patch_text: str) -> dict[str, object]:
+    return query_analyze_patch_targets(root, patch_text)
 
 
 def run_detect_protected_overlap_query(
