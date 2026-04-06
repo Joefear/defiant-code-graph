@@ -5,6 +5,21 @@ from pathlib import Path
 from src.repo_scanner import scan_repository
 
 
+OWNERSHIP_MARKERS = (
+    ("locked", ("@locked", "ownership: locked")),
+    ("governed", ("@governed", "ownership: governed")),
+    ("critical", ("@critical", "ownership: critical")),
+    (
+        "policy_sensitive",
+        (
+            "@policy-sensitive",
+            "@policy_sensitive",
+            "ownership: policy-sensitive",
+            "ownership: policy_sensitive",
+        ),
+    ),
+)
+
 GENERATED_FILE_MARKERS = (
     "@generated",
     "auto-generated",
@@ -24,6 +39,10 @@ def _classify_file_ownership(file_path: Path, root: Path) -> str:
         content = file_path.read_text(encoding="utf-8").lower()
     except UnicodeDecodeError:
         return "unknown"
+
+    for ownership, markers in OWNERSHIP_MARKERS:
+        if any(marker in content for marker in markers):
+            return ownership
 
     if any(marker in content for marker in GENERATED_FILE_MARKERS):
         return "generated"
