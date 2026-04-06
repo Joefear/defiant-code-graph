@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from src.file_ownership_classifier import build_file_ownership_facts
 from src.python_dependency_graph import build_python_dependency_graph
 from src.python_file_facts import build_python_file_facts
 from src.repo_scanner import scan_repository
@@ -26,4 +27,5 @@ def build_python_repo_facts(root: Path) -> dict[str, object]:
         "repo_root": str(root),
         "files": files,
         "dependencies": build_python_dependency_graph(root),
+        "ownership": build_file_ownership_facts(root),
     }
