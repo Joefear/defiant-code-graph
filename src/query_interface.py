@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.query_classify_change_type import query_classify_change_type
+from src.query_determine_edit_strategy import query_determine_edit_strategy
 from src.query_compare_intent_to_patch import query_compare_intent_to_patch
 from src.query_analyze_patch_impact import query_analyze_patch_impact
 from src.query_detect_protected_overlap import (
@@ -32,6 +33,14 @@ def run_query(root: Path, query_type: str, **kwargs: object) -> dict[str, object
         return query_file_outline(root, kwargs["file_path"])
     if query_type == "file_dependencies":
         return query_file_dependencies(root, kwargs["file_path"])
+    if query_type == "determine_edit_strategy":
+        return query_determine_edit_strategy(
+            root,
+            file_path=kwargs.get("file_path"),
+            symbol_id=kwargs.get("symbol_id"),
+            proposed_start_line=kwargs["proposed_start_line"],
+            proposed_end_line=kwargs["proposed_end_line"],
+        )
     if query_type == "detect_generation_collision":
         return query_detect_generation_collision(
             root,
@@ -86,6 +95,23 @@ def run_file_outline_query(root: Path, file_path: Path) -> dict[str, object]:
 
 def run_file_dependencies_query(root: Path, file_path: Path) -> dict[str, object]:
     return query_file_dependencies(root, file_path)
+
+
+def run_determine_edit_strategy_query(
+    root: Path,
+    *,
+    proposed_start_line: int,
+    proposed_end_line: int,
+    file_path: Path | None = None,
+    symbol_id: str | None = None,
+) -> dict[str, object]:
+    return query_determine_edit_strategy(
+        root,
+        file_path=file_path,
+        symbol_id=symbol_id,
+        proposed_start_line=proposed_start_line,
+        proposed_end_line=proposed_end_line,
+    )
 
 
 def run_detect_generation_collision_query(
