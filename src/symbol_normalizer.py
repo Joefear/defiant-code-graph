@@ -17,7 +17,7 @@ def normalize_symbols(
                 "symbol_id": f"{file_path.as_posix()}:{symbol_name}:{start_line}",
                 "symbol_name": symbol_name,
                 "symbol_kind": raw_symbol["symbol_kind"],
-                "file_path": str(file_path),
+                "file_path": file_path.as_posix(),
                 "start_line": start_line,
                 "end_line": raw_symbol["end_line"],
             }
