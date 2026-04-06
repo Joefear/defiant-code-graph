@@ -15,6 +15,7 @@ from src.query_find_boundary_crossings import (
     query_find_boundary_crossings,
     query_find_boundary_crossings_for_file,
 )
+from src.query_detect_generation_collision import query_detect_generation_collision
 from src.query_file_outline import query_file_outline
 from src.query_find_insertion_points import (
     query_find_insertion_points,
@@ -31,6 +32,14 @@ def run_query(root: Path, query_type: str, **kwargs: object) -> dict[str, object
         return query_file_outline(root, kwargs["file_path"])
     if query_type == "file_dependencies":
         return query_file_dependencies(root, kwargs["file_path"])
+    if query_type == "detect_generation_collision":
+        return query_detect_generation_collision(
+            root,
+            file_path=kwargs.get("file_path"),
+            symbol_id=kwargs.get("symbol_id"),
+            proposed_start_line=kwargs["proposed_start_line"],
+            proposed_end_line=kwargs["proposed_end_line"],
+        )
     if query_type == "find_insertion_points":
         if "symbol_id" in kwargs:
             return query_find_insertion_points(root, symbol_id=kwargs["symbol_id"])
@@ -77,6 +86,23 @@ def run_file_outline_query(root: Path, file_path: Path) -> dict[str, object]:
 
 def run_file_dependencies_query(root: Path, file_path: Path) -> dict[str, object]:
     return query_file_dependencies(root, file_path)
+
+
+def run_detect_generation_collision_query(
+    root: Path,
+    *,
+    proposed_start_line: int,
+    proposed_end_line: int,
+    file_path: Path | None = None,
+    symbol_id: str | None = None,
+) -> dict[str, object]:
+    return query_detect_generation_collision(
+        root,
+        file_path=file_path,
+        symbol_id=symbol_id,
+        proposed_start_line=proposed_start_line,
+        proposed_end_line=proposed_end_line,
+    )
 
 
 def run_find_insertion_points_query(
